@@ -34,7 +34,7 @@ var lineEq = function (m, p, b) {
 function sketchProc(processing) {
     window.proc = processing;
 
-    proc.width = 400;
+    proc.width = 600;
     proc.height = 400;
     // proc.ellipseMode(proc.CENTER);
 
@@ -358,9 +358,9 @@ function sketchProc(processing) {
     var y = 200;
     var r = 50;
     var a1 = new avatar({
-        x: 303,
-        y: y,
-        r: r,
+        x: 100,
+        y: 200,
+        r: 40,
         color: COLORS.PINK,
         mood: BAD,
         sleep: BAD,
@@ -369,9 +369,9 @@ function sketchProc(processing) {
     });
 
     var a2 = new avatar({
-        x: 88,
-        y: y,
-        r: r,
+        x: 300,
+        y: 250,
+        r: 60,
         color: COLORS.GREEN,
         mood: OKAY,
         sleep: OKAY,
@@ -380,9 +380,9 @@ function sketchProc(processing) {
     });
 
     var a3 = new avatar({
-        x: 203,
-        y: 343,
-        r: r/2,
+        x: 500,
+        y: 200,
+        r: 40,
         color: COLORS.BLUE,
         mood: GOOD,
         sleep: GOOD,
@@ -392,16 +392,12 @@ function sketchProc(processing) {
 
     var frameCount = 0;
 
-    processing.setUp = function() {
-        size(400, 400);
-    };
-
     processing.draw = function() {
         background(189, 226, 255);
         a1.render();
         a2.render();
         a3.render();
-        // frameCount += 1;
+        frameCount += 1;
     };
 }
 

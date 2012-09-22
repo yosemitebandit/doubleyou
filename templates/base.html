@@ -1,15 +1,32 @@
 <!doctype html>
 <html>
     <head>
-        <link rel='stylesheet' href="{{ url_for('static', filename='css/bootstrap.spruce.min.css') }}">
+        <link rel='stylesheet' href="{{ url_for('static', filename='css/bootstrap.css') }}">
 
         {% block head %}
+        <style>
+            body {
+                background: black;
+            }
+        </style>
         {% endblock %}
     </head>
 
     <body>
-
-        <div class='container'>
+        <div class="container">
+            <div class="row">
+                <div class="navbar navbar-static-top navbar-inverse">
+                  <div class="navbar-inner">
+                    <a class="brand" href="#">DoubleYou</a>
+                    <ul class="nav">
+                      <li class="active"><a href="#">Home</a></li>
+                      <li><a href="#">Profile</a></li>
+                    </ul>
+                  </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
             {% block body %}
             {% endblock %}
         </div>
