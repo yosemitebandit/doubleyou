@@ -1,5 +1,5 @@
 from mongoengine import (Document, StringField, DateTimeField, ReferenceField
-        , IntField, BooleanField, FloatField)
+        , IntField, BooleanField, FloatField, ListField)
 
 class Player(Document):
     name = StringField()
@@ -16,6 +16,7 @@ class Player(Document):
 
 class Question(Document):
     prompt = StringField()
+    possible_responses = ListField(StringField())
     classification = StringField()
 
 

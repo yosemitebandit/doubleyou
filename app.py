@@ -2,10 +2,13 @@ import os
 from flask import Flask, render_template, jsonify, abort
 import csv
 import datetime
+import sys
 import time
+import math
+import random
 from mongoengine import connect
 
-from models import Player, BodyMediaData
+from models import Player, BodyMediaData, Question
 
 app = Flask(__name__)
 
@@ -42,14 +45,6 @@ def about():
 
 ''' player data routes
 '''
-@app.route('/players/<name>/questions')
-def player_questions(name):
-    return render_template('player_questions.html', name=name)
-
-@app.route('/players/<name>/dashboard')
-def player_dashboard(name):
-    return render_template('player_dashboard.html', name=name)
-
 @app.route('/players/<name>')
 def player_home(name):
     return render_template('player_home.html', name=name)
@@ -79,8 +74,104 @@ def player_data(name):
     return jsonify(response)
 
 
+@app.route('/api/players/<name>/questions')
+def player_questions(name):
+    ''' get a relevant question
+    '''
+
+    '''
+    players = Player.objects(name=name)
+    if not players:
+        abort(404)
+    player = players[0]
+    '''
+
+    questions = Question.objects()
+    index = int(math.floor(random.random()*5))
+
+    q = questions[index]
+
+    return jsonify({
+        'prompt': q.prompt
+        , 'possible_responses': q.possible_responses
+        , 'classification': q.classification
+    })
+
+
 ''' seeding the database
 '''
+@app.route('/api/seed/questions')
+def seed_questions():
+    questions = Question.objects()
+    if questions:
+        return 'already seeded'
+
+    q = Question(
+        prompt = 'How many times did you wake up last night?'
+        , possible_responses = ['0', '1', '2', '3']
+        , classification = 'morning'
+    )
+    q.save()
+
+    q = Question(
+        prompt = 'How bad were your asthma symptoms when you woke up this morning?'
+        , possible_responses = ['not bad at all', 'a little bad', 'somewhat bad', 'very bad']
+        , classification = 'morning'
+    )
+    q.save()
+
+    q = Question(
+        prompt = 'How rested do you feel this morning?'
+        , possible_responses = ['well rested', 'somewhat', 'a little', 'not at all']
+        , classification = 'morning'
+    )
+    q.save()
+
+    q = Question(
+        prompt = 'How much trouble did you have falling asleep?'
+        , possible_responses = ['no trouble', 'a little trouble', 'some trouble', 'a lot of trouble']
+        , classification = 'morning'
+    )
+    q.save()
+
+    q = Question(
+        prompt = 'How limited were you in activities because of your asthma?'
+        , possible_responses = ['not at all', 'a little', 'somewhat', 'a lot']
+        , classification = 'night'
+    )
+    q.save()
+
+    q = Question(
+        prompt = 'How much shortness did you experience because of your asthma?'
+        , possible_responses = ['none at all', 'a little', 'some', 'a lot']
+        , classification = 'night'
+    )
+    q.save()
+
+    q = Question(
+        prompt = 'How much time did you wheeze today?'
+        , possible_responses = ['none at all', 'a little of the time', 'some of the time', 'a lot of the time']
+        , classification = 'night'
+    )
+    q.save()
+
+    q = Question(
+        prompt = 'How many times did you use your inhaler today?'
+        , possible_responses = ['zero', '1-2', '3-4', '5+']
+        , classification = 'night'
+    )
+    q.save()
+
+    q = Question(
+        prompt = 'How much did your asthma affect your exercise today?'
+        , possible_responses = ['not at all', 'a little', 'somewhat', 'a lot']
+        , classification = 'night'
+    )
+    q.save()
+
+    return 'ok'
+
+
 @app.route('/api/seed/players')
 def seed_players():
     players = Player.objects()
@@ -127,8 +218,6 @@ def seed_bmdata():
             if count == 0:
                 count += 1
                 continue
-
-            print row
 
             bmdata = BodyMediaData(
                 timestamp = datetime.datetime.fromtimestamp(time.mktime(

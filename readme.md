@@ -17,3 +17,8 @@
 /api/players/<player-name>
 ```
 
+### seeding the database
+```
+/api/seed/players
+/api/seed/bmdata
+```
