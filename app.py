@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify, abort
 import csv
 import datetime
 import time
@@ -59,7 +59,24 @@ def player_home(name):
 '''
 @app.route('/api/players/<name>')
 def player_data(name):
-    pass
+
+    players = Player.objects(name=name)
+    if not players:
+        abort(404)
+    player = players[0]
+
+    player_data = BodyMediaData.objects(player=player)
+
+    # calculate..
+
+    response = {
+        'time_slept': 3
+        , 'net_calories': 2
+        , 'physical_activity': 1
+        , 'question_responses': 3
+    }
+
+    return jsonify(response)
 
 
 ''' seeding the database
