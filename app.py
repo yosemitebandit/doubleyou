@@ -102,7 +102,9 @@ def player_answers(name):
 
     player.update(set__last_answer_time=datetime.datetime.utcnow())
 
-    return jsonify({'status': 'ok'})
+    answer_count = Answer.objects(player=player).count()
+
+    return jsonify({'status': 'ok', 'answer_count': answer_count})
 
 
 @app.route('/api/players/<name>/questions')
