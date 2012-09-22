@@ -93,8 +93,12 @@ def player_questions(name):
 
     return jsonify({
         'prompt': q.prompt
-        , 'possible_responses': q.possible_responses
+        , 'response_0': q.possible_responses[0]
+        , 'response_1': q.possible_responses[1]
+        , 'response_2': q.possible_responses[2]
+        , 'response_3': q.possible_responses[3]
         , 'classification': q.classification
+        , 'question_id': str(q.id)
     })
 
 

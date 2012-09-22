@@ -1,5 +1,84 @@
 {% extends "player_base.html" %}
 
+{% block head %}
+<style>
+    #question-pane {
+        position: absolute;
+        
+        width: 400px;
+        height: 400px;
+    }
+
+</style>
+
+{% endblock %}
+
 {% block body %}
 <h1>{{ name }} home</h1>
+
+<div class='row'>
+
+    <div class='span12'>
+
+        <div id='doubleyou-avatar'>
+        </div>
+
+        <div id='question-pane'>
+            <script id='question-template' type='text/x-handlebars-template'>
+                {% raw %}
+                <form>
+                    <legend>{{prompt}}</legend>
+                    <label class='radio'>
+                        <input type='radio' name='{{question_id}}' value='0'>
+                        {{response_0}}
+                    </label>
+
+                    <label class='radio'>
+                        <input type='radio' name='{{question_id}}' value='1'>
+                        {{response_1}}
+                    </label>
+
+                    <label class='radio'>
+                        <input type='radio' name='{{question_id}}' value='2'>
+                        {{response_2}}
+                    </label>
+
+                    <label class='radio'>
+                        <input type='radio' name='{{question_id}}' value='3'>
+                        {{response_3}}
+                    </label>
+
+                    <button type='submit' class='btn'>Submit</button>
+                </form>
+                {% endraw %}
+            </script>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block js %}
+
+<script src="{{ url_for('static', filename='js/handlebars-1.0.rc.1.js') }}"></script>
+
+<script>
+    $(function() {
+
+        var source = $('#question-template').html();
+        var question_template = Handlebars.compile(source);
+
+        // get a question
+        $.get('/api/players/{{ name }}/questions', function(data) {
+                console.log(data);
+                question_form = question_template(data);
+                
+                $('#question-pane').html(question_form);
+
+        });
+
+    });
+</script>
+
 {% endblock %}
