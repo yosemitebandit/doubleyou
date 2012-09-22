@@ -59,21 +59,124 @@ def player_home(name):
 
 ''' API routes
 '''
-@app.route('/api/players/<name>')
-def player_data(name):
+@app.route('/api/players/<name>/<date>')
+def player_data(name, date):
+    ''' date is of the format 20120910 or YYmd
+    '''
     players = Player.objects(name=name)
     if not players:
         abort(404)
     player = players[0]
 
-    data = BodyMediaData.objects(player=player)
+    requested_date = datetime.datetime.fromtimestamp(time.mktime(
+        time.strptime(date, '%Y%m%d')))
 
-    # calculate..
+    data = BodyMediaData.objects(player=player, timestamp=requested_date)
+    if not data:
+        abort(404)
+    data = data[0]
+
+    # calculatron
+    ''' net caloric intake
+    '''
+    net = data.caloric_intake - data.caloric_output
+    if net >= 100:
+        net_calories = 3
+    elif net >= -100 and net < 100:
+        net_calories = 2
+    else:
+        net_calories = 1
+
+
+    ''' activity calculator
+    '''
+    caloric_target = 2475  # parameterize later
+    age = 39
+
+    if player.gender == 'male':
+        BMR = 66 + (6.23 * player.weight) + (12.7 * player.height) - (6.8 * age)
+    else:
+        BMR = 655 + (4.35 * player.weight) + (4.7 * player.height) - (4.7 * age)
+
+    baseline = BMR * 1.2
+
+    if data.caloric_output >= caloric_target + 200:
+        physical_activity = 3
+    elif data.caloric_output >= baseline + 350 and data.caloric_output < caloric_target + 200:
+        physical_activity = 2
+    else:
+        physical_activity = 1
+
+
+    ''' sleep calculator
+    '''
+    sleep_goal = 60*8   # parameterize one day, lalala
+
+    # try to get the previous day
+    previous_day = requested_date - datetime.timedelta(days=1)
+    previous_day_data = BodyMediaData.objects(player=player
+        , timestamp=previous_day)
+    if not previous_day_data:
+        # 100% weighted to current day
+        percent_of_goal = data.lying_down / sleep_goal
+        sleep_efficiency = data.sleep_duration / data.lying_down
+
+        if percent_of_goal > 1:
+            percent_score = 3
+        elif percent_of_goal > 0.9:
+            percent_score = 2
+        else:
+            percent_score = 1
+
+        if sleep_efficiency >= 0.8:
+            efficiency_score = 3
+        elif sleep_efficiency > 0.6:
+            efficiency_score = 2
+        else:
+            efficiency_score = 1
+
+        if efficiency_score == 3 and percent_score == 3:
+            time_slept = 3
+        elif efficiency_score == 2 or percent_score == 2:
+            time_slept = 2
+        elif efficiency_score == 1 or percent_score == 1:
+            time_slept = 1
+
+
+    else:
+        previous_day_data = previous_day_data[0]
+        # 25% yesterday, 75% today
+        percent_of_goal = data.lying_down / sleep_goal
+        percent_of_goal_yesterday = previous_day_data.lying_down / sleep_goal
+        sleep_efficiency = data.sleep_duration / data.lying_down
+        sleep_efficiency_yesterday = previous_day_data.sleep_duration / data.lying_down
+
+        if percent_of_goal*0.75 + percent_of_goal_yesterday*0.25 > 1:
+            percent_score = 3
+        if percent_of_goal*0.75 + percent_of_goal_yesterday*0.25 > 0.9:
+            percent_score = 2
+        else:
+            percent_score = 1
+
+        if sleep_efficiency*0.75 + sleep_efficiency_yesterday*0.25 >= 0.8:
+            efficiency_score = 3
+        if sleep_efficiency*0.75 + sleep_efficiency_yesterday*0.25 >= 0.6:
+            efficiency_score = 2
+        else:
+            efficiency_score = 1
+
+        if efficiency_score == 3 and percent_score == 3:
+            time_slept = 3
+        elif efficiency_score == 2 or percent_score == 2:
+            time_slept = 2
+        elif efficiency_score == 1 or percent_score == 1:
+            time_slept = 1
+
 
     response = {
-        'time_slept': 3
-        , 'net_calories': 2
-        , 'physical_activity': 1
+        'time_slept': time_slept
+        , 'net_calories': net_calories
+        , 'physical_activity': physical_activity
         , 'question_responses': 3
     }
 
@@ -263,7 +366,7 @@ def seed_bmdata():
     player = Player.objects(name='matt')[0]
 
     # in 'static' dir we have an excel file with Body Media data rows
-    data_path = 'static/data/v1.csv'
+    data_path = 'static/data/v2.csv'
     with open(data_path, 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         ''' iterate over the rows and inject body media entries
@@ -279,7 +382,7 @@ def seed_bmdata():
 
             bmdata = BodyMediaData(
                 timestamp = datetime.datetime.fromtimestamp(time.mktime(
-                    time.strptime(row[0], '%m/%d/%y')))
+                    time.strptime(row[0], '%Y%m%d.000000')))
                 , lying_down = float(row[1])
                 , sleep_duration = float(row[2])
                 , caloric_intake = float(row[3])
