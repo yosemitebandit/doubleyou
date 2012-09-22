@@ -1,0 +1,17 @@
+{
+    "matt": {
+        "sleepiness": 8
+        , "stress": 1
+        , "fitness": 7
+    }
+    , "cyrus": {
+        "sleepiness": 7
+        , "stress": 1
+        , "fitness": 7
+    }
+    , "jas": {
+        "sleepiness": 10
+        , "stress": 4
+        , "fitness": 8
+    }
+}

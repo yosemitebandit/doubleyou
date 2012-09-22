@@ -11,6 +11,6 @@
 
 ## API routes
 ```
-/api/players/<player-id>
+/api/players/<player-name>
 ```
 

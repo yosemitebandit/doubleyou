@@ -1,5 +1,6 @@
+import json
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 
 app = Flask(__name__)
 
@@ -36,9 +37,11 @@ def player_home(name):
 
 ''' API routes
 '''
-@app.route('/api/players/<player_id>')
-def player_data(player_id):
-    pass
+@app.route('/api/players/<name>')
+def player_data(name):
+    f = open('static/json/data.json', 'r')
+    data = json.loads(f.read())
+    return jsonify(data)
 
 
 if __name__ == '__main__':
