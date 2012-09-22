@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, jsonify, abort
+from flask import Flask, render_template, jsonify, abort, request
 import csv
 import datetime
 import sys
@@ -8,7 +8,7 @@ import math
 import random
 from mongoengine import connect
 
-from models import Player, BodyMediaData, Question
+from models import Player, BodyMediaData, Question, Answer
 
 app = Flask(__name__)
 
@@ -47,20 +47,26 @@ def about():
 '''
 @app.route('/players/<name>')
 def player_home(name):
-    return render_template('player_home.html', name=name)
+    players = Player.objects(name=name)
+    if not players:
+        abort(404)
+    player = players[0]
+
+    answer_count = Answer.objects(player=player).count()
+    return render_template('player_home.html', name=name
+        , answer_count=answer_count)
 
 
 ''' API routes
 '''
 @app.route('/api/players/<name>')
 def player_data(name):
-
     players = Player.objects(name=name)
     if not players:
         abort(404)
     player = players[0]
 
-    player_data = BodyMediaData.objects(player=player)
+    data = BodyMediaData.objects(player=player)
 
     # calculate..
 
@@ -72,6 +78,31 @@ def player_data(name):
     }
 
     return jsonify(response)
+
+
+@app.route('/api/players/<name>/answers', methods=['POST'])
+def player_answers(name):
+    players = Player.objects(name=name)
+    if not players:
+        abort(404)
+    player = players[0]
+
+    question_id = request.form.get('question_id', '')
+    response = request.form.get('response', '') 
+
+    question = Question.objects(id=question_id)[0]
+
+    new_answer = Answer(
+        question = question
+        , player = player
+        , data = int(response)
+        , timestamp = datetime.datetime.utcnow()
+    )
+    new_answer.save()
+
+    player.update(set__last_answer_time=datetime.datetime.utcnow())
+
+    return jsonify({'status': 'ok'})
 
 
 @app.route('/api/players/<name>/questions')
@@ -104,6 +135,20 @@ def player_questions(name):
 
 ''' seeding the database
 '''
+@app.route('/api/seed/destroy')
+def destroy_seed():
+    objects = []
+    objects.extend(Question.objects())
+    objects.extend(Player.objects())
+    objects.extend(Answer.objects())
+    objects.extend(BodyMediaData.objects())
+
+    for o in objects:
+        o.delete()
+
+    return 'ouch'
+
+
 @app.route('/api/seed/questions')
 def seed_questions():
     questions = Question.objects()
@@ -173,6 +218,13 @@ def seed_questions():
     )
     q.save()
 
+    q = Question(
+        prompt = 'How would you rate your asthma control today?'
+        , possible_responses = ['1', '2', '3', '4']
+        , classification = 'night'
+    )
+    q.save()
+
     return 'ok'
 
 
@@ -183,7 +235,7 @@ def seed_players():
         return 'already seeded'
 
     new_player = Player(
-        name = 'Matt B'
+        name = 'matt'
         , signup_time = datetime.datetime.utcnow()
         , birthday = datetime.date(1988, 2, 3)
         , height = '77'
@@ -206,7 +258,7 @@ def seed_bmdata():
         return 'already seeded'
 
     # attach to a specific player
-    player = Player.objects(name='Matt B')[0]
+    player = Player.objects(name='matt')[0]
 
     # in 'static' dir we have an excel file with Body Media data rows
     data_path = 'static/data/v1.csv'
