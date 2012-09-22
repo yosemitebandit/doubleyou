@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block body %}
-<h1>{{ name }} home</h1>
+<h1>{{ name }} - <span id='answer_count'>{{ answer_count }}</span> questions answered!</h1>
 
 <div class='row'>
 
@@ -26,7 +26,7 @@
         <div id='question-pane'>
             <script id='question-template' type='text/x-handlebars-template'>
                 {% raw %}
-                <form>
+                <form id='question-form'>
                     <legend>{{prompt}}</legend>
                     <label class='radio'>
                         <input type='radio' name='{{question_id}}' value='0'>
@@ -48,7 +48,7 @@
                         {{response_3}}
                     </label>
 
-                    <button type='submit' class='btn'>Submit</button>
+                    <a class='btn' id='question-submit'>Submit</a>
                 </form>
                 {% endraw %}
             </script>
@@ -72,13 +72,30 @@
         var question_template = Handlebars.compile(source);
 
         // get a question
-        $.get('/api/players/{{ name }}/questions', function(data) {
+        var get_question = function() {
+            $.get('/api/players/{{ name }}/questions', function(data) {
                 console.log(data);
                 question_form = question_template(data);
-                
                 $('#question-pane').html(question_form);
 
-        });
+                $('#question-submit').click(function() {
+                    $.post('/api/players/{{ name }}/answers'
+                        , {
+                            question_id: data.question_id
+                            , response: $('form input[type=radio]:checked').val()
+                        }
+                        , function(data) {
+                            console.log(data);
+                            $('#answer_count').html(data.answer_count);
+                            get_question();
+                        }
+                    );
+                });
+            });
+        };
+
+        // onload, get a new question
+        get_question();
 
     });
 </script>

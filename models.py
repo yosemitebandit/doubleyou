@@ -21,8 +21,8 @@ class Question(Document):
 
 
 class Answer(Document):
-    ReferenceField(Question)
-    ReferenceField(Player)
+    question = ReferenceField(Question)
+    player = ReferenceField(Player)
     data = IntField()
     timestamp = DateTimeField()
 
