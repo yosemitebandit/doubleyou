@@ -1,5 +1,8 @@
 
-## interface routes
+### architecture
+
+
+### interface routes
 ```
 /
 /about
@@ -9,7 +12,7 @@
 /players/<player-name>/dashboard
 ```
 
-## API routes
+### API routes
 ```
 /api/players/<player-name>
 ```

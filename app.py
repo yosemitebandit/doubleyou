@@ -1,8 +1,28 @@
-import json
 import os
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template
+import csv
+import datetime
+import time
+from mongoengine import connect
+
+from models import Player, BodyMediaData
 
 app = Flask(__name__)
+
+
+# get env-var
+# the MONGOLAB_URI env-var is mongodb://username:password@host:port/database
+if not os.environ['MONGOLAB_URI']:
+    print 'please set the env var'
+    sys.exit(0)
+
+m = os.environ['MONGOLAB_URI']
+database = m.split('/')[3]
+username = database
+port = int(m.split('/')[2].split(':')[2])
+[password, host] = m.split('/')[2].split(':')[1].split('@')
+
+connect(database, host=host, port=port, username=username, password=password)
 
 
 ''' meta routes
@@ -39,12 +59,79 @@ def player_home(name):
 '''
 @app.route('/api/players/<name>')
 def player_data(name):
-    f = open('static/json/data.json', 'r')
-    data = json.loads(f.read())
-    return jsonify(data)
+    pass
+
+
+''' seeding the database
+'''
+@app.route('/api/seed/players')
+def seed_players():
+    players = Player.objects()
+    if players:
+        return 'already seeded'
+
+    new_player = Player(
+        name = 'Matt B'
+        , signup_time = datetime.datetime.utcnow()
+        , birthday = datetime.date(1988, 2, 3)
+        , height = '77'
+        , weight = '165'
+        , smoker = False
+        , gender = 'male'
+    )
+    new_player.save()
+
+    return 'ok'
+
+
+@app.route('/api/seed/bmdata')
+def seed_bmdata():
+    ''' hacked way to get our static data into the db
+    '''
+    # if there is no body media data in the db
+    bm_data = BodyMediaData.objects()
+    if bm_data:
+        return 'already seeded'
+
+    # attach to a specific player
+    player = Player.objects(name='Matt B')[0]
+
+    # in 'static' dir we have an excel file with Body Media data rows
+    data_path = 'static/data/v1.csv'
+    with open(data_path, 'rb') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        ''' iterate over the rows and inject body media entries
+        assuming this column order in the excel file:
+        timestamp, lying down, sleep duration, calories in, calories out,
+        average MET, sed, mod, vigorous
+        '''
+        count = 0
+        for row in reader:
+            if count == 0:
+                count += 1
+                continue
+
+            print row
+
+            bmdata = BodyMediaData(
+                timestamp = datetime.datetime.fromtimestamp(time.mktime(
+                    time.strptime(row[0], '%m/%d/%y')))
+                , lying_down = float(row[1])
+                , sleep_duration = float(row[2])
+                , caloric_intake = float(row[3])
+                , caloric_output = float(row[4])
+                , average_met = float(row[5])
+                , sedentary_activity_duration = float(row[6])
+                , moderate_activity_duration = float(row[7])
+                , vigorous_activity_duration = float(row[8])
+                , player=player
+            )
+            bmdata.save()
+
+    return 'ok'
 
 
 if __name__ == '__main__':
     # Bind to PORT if defined, otherwise default to 5000.
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True)
