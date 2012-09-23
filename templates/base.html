@@ -1,23 +1,43 @@
 <!doctype html>
 <html>
     <head>
-        <link rel='stylesheet' href="{{ url_for('static', filename='css/bootstrap.spruce.min.css') }}">
+        <link rel='stylesheet' href="{{ url_for('static', filename='css/bootstrap.css') }}">
 
         {% block head %}
+        <style>
+            body {
+                background: #444;
+            }
+        </style>
         {% endblock %}
     </head>
 
     <body>
-
-        <div class='container'>
+        <div class="container">
+            <div class="row">
+                <div class="navbar navbar-static-top navbar-inverse">
+                  <div class="navbar-inner">
+                    <a class="brand" href="#">DoubleYou</a>
+                    <ul class="nav">
+                      <li class="active"><a href="#">Home</a></li>
+                      <li><a href="#">Profile</a></li>
+                    </ul>
+                  </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
             {% block body %}
             {% endblock %}
         </div>
     </body>
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
 
     {% block js %}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='js/handlebars-1.0.rc.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/processing-1.4.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/underscore.js') }}"></script>
     {% endblock %}
 
 </html>
