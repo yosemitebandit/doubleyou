@@ -22,3 +22,8 @@
 /api/seed/players
 /api/seed/bmdata
 ```
+
+
+### Content for the front page
+
+Front page has been scratched from the demo
