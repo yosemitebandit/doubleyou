@@ -436,7 +436,6 @@ function sketchProc(processing) {
 
             day = '' + date.getFullYear() + month + d
             //day = '' + date.getFullYear() + date.getMonth() + date.getDay();
-            console.log(day);
 
             var url = "/api/players/matt/" + day;
             $.getJSON(url, updateAvatar);
