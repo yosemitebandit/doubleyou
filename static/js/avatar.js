@@ -392,12 +392,18 @@ function sketchProc(processing) {
 
     var frameCount = 0;
 
+    var updateAvatar = function() {
+        console.log("updated");
+    };
+
     processing.draw = function() {
         background(189, 226, 255);
         a1.render();
         a2.render();
         a3.render();
         frameCount += 1;
+
+        _.delay(updateAvatar, 500);
     };
 }
 
