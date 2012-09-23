@@ -362,10 +362,11 @@ function sketchProc(processing) {
         y: 200,
         r: 40,
         color: COLORS.PINK,
-        mood: BAD,
-        sleep: BAD,
-        nutrition: BAD,
-        activity: GOOD
+        mood: OKAY,
+        sleep: OKAY,
+        nutrition: OKAY,
+        activity: OKAY
+
     });
 
     var a2 = new avatar({
@@ -373,10 +374,10 @@ function sketchProc(processing) {
         y: 250,
         r: 60,
         color: COLORS.GREEN,
-        mood: OKAY,
-        sleep: OKAY,
-        nutrition: OKAY,
-        activity: OKAY
+        mood: BAD,
+        sleep: BAD,
+        nutrition: BAD,
+        activity: BAD
     });
 
     var a3 = new avatar({
@@ -387,7 +388,7 @@ function sketchProc(processing) {
         mood: GOOD,
         sleep: GOOD,
         nutrition: GOOD,
-        activity: BAD
+        activity: GOOD
     });
 
     var frameCount = 0;
@@ -398,7 +399,7 @@ function sketchProc(processing) {
         var nutrition = data.net_calories;
         var sleep = data.time_slept;
 
-        a1.setParams({
+        a2.setParams({
             "mood": mood,
             "sleep": sleep,
             "nutrition": nutrition,
@@ -416,7 +417,6 @@ function sketchProc(processing) {
             var day = 20120203;
             var url = "/api/players/matt/" + day;
             $.getJSON(url, updateAvatar);
-            updateAvatar();
         }
     };
 }
