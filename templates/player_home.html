@@ -68,6 +68,7 @@
 {% block js %}
 {{ super() }}
 
+<script src="{{ url_for('static', filename='js/date.js') }}"></script>
 <script src="{{ url_for('static', filename='js/avatar.js') }}"></script>
 
 <script>
@@ -79,7 +80,6 @@
         // get a question
         var get_question = function() {
             $.get('/api/players/{{ name }}/questions', function(data) {
-                console.log(data);
                 question_form = question_template(data);
                 $('#question-pane').html(question_form);
 
@@ -90,7 +90,6 @@
                             , response: $('form input[type=radio]:checked').val()
                         }
                         , function(data) {
-                            console.log(data);
                             $('#answer_count').html(data.answer_count);
                             get_question();
                         }

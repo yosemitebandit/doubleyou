@@ -406,6 +406,8 @@ function sketchProc(processing) {
             "activity": activity
         });
     };
+    
+    days_ago = 0;
 
     processing.draw = function() {
         background(189, 226, 255);
@@ -413,14 +415,38 @@ function sketchProc(processing) {
         a2.render();
         a3.render();
         frameCount += 1;
-        if (frameCount % 500 === 0) {
-            var day = 20120203;
+
+        if (frameCount % 50 === 0) {
+
+            var date = (days_ago).days().ago();
+
+            var month = date.getMonth();
+            if (month < 10) {
+                month = '0' + month;
+            } else {
+                month = month + '';
+            }
+
+            var d = date.getDay();
+            if (d < 10) {
+                d = '0' + d;
+            } else {
+                d = d + '';
+            }
+
+            day = '' + date.getFullYear() + month + d
+            //day = '' + date.getFullYear() + date.getMonth() + date.getDay();
+            console.log(day);
+
             var url = "/api/players/matt/" + day;
             $.getJSON(url, updateAvatar);
+
+            days_ago += 1;
+
         }
     };
 }
 
 window.canvas = document.getElementById("doubleyou-avatar");
-console.log(window.canvas);
+//console.log(window.canvas);
 var processingInstance = new Processing(canvas, sketchProc);

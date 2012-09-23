@@ -173,6 +173,7 @@ def compute(player, requested_date, data):
         , 'net_calories': net_calories
         , 'physical_activity': physical_activity
         , 'question_responses': question_responses
+        , 'requested_date': requested_date.strftime('%d/%m/%Y')
     }
 
 
