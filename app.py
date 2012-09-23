@@ -57,24 +57,10 @@ def player_home(name):
         , answer_count=answer_count)
 
 
-''' API routes
-'''
-@app.route('/api/players/<name>/<date>')
-def player_data(name, date):
-    ''' date is of the format 20120910 or YYmd
+
+def compute(player, requested_date, data):
+    ''' compute all parameters..
     '''
-    players = Player.objects(name=name)
-    if not players:
-        abort(404)
-    player = players[0]
-
-    requested_date = datetime.datetime.fromtimestamp(time.mktime(
-        time.strptime(date, '%Y%m%d')))
-
-    data = BodyMediaData.objects(player=player, timestamp=requested_date)
-    if not data:
-        abort(404)
-    data = data[0]
 
     # calculatron
     ''' net caloric intake
@@ -171,16 +157,61 @@ def player_data(name, date):
             time_slept = 2
         elif efficiency_score == 1 or percent_score == 1:
             time_slept = 1
+    
+
+    ''' question score
+    '''
+    question_responses = 4
 
 
-    response = {
+    return {
         'time_slept': time_slept
         , 'net_calories': net_calories
         , 'physical_activity': physical_activity
-        , 'question_responses': 3
+        , 'question_responses': question_responses
     }
 
-    return jsonify(response)
+
+''' API routes
+'''
+@app.route('/api/players/<name>/<date>')
+def player_data(name, date):
+    ''' date is of the format 20120910 or YYmd
+    '''
+    players = Player.objects(name=name)
+    if not players:
+        abort(404)
+    player = players[0]
+
+    requested_date = datetime.datetime.fromtimestamp(time.mktime(
+        time.strptime(date, '%Y%m%d')))
+
+    data = None
+    # what if 2010??
+    while not data:
+        data = BodyMediaData.objects(player=player, timestamp=requested_date)
+        requested_date = requested_date - datetime.timedelta(days=1)
+    data = data[0]
+
+    todays_result = compute(player, requested_date, data)
+
+    # total-score computation
+    total_score = 0
+    for i in [0,1,2]:
+        requested_date = requested_date - datetime.timedelta(days=i)
+        r = compute(player, requested_date, data)
+
+        if i == 0:
+            total_score += 0.6*(10*r['physical_activity'] + r['question_responses'] + 10*r['net_calories'] + 10*r['time_slept'])
+        elif i == 1:
+            total_score += 0.3*(10*r['physical_activity'] + r['question_responses'] + 10*r['net_calories'] + 10*r['time_slept'])
+        elif i == 2:
+            total_score += 0.1*(10*r['physical_activity'] + r['question_responses'] + 10*r['net_calories'] + 10*r['time_slept'])
+
+
+    todays_result['total_score'] = int(total_score)
+
+    return jsonify(todays_result)
 
 
 @app.route('/api/players/<name>/answers', methods=['POST'])
@@ -192,7 +223,6 @@ def player_answers(name):
 
     question_id = request.form.get('question_id', '')
     response = request.form.get('response', '') 
-
     question = Question.objects(id=question_id)[0]
 
     new_answer = Answer(
@@ -204,7 +234,6 @@ def player_answers(name):
     new_answer.save()
 
     player.update(set__last_answer_time=datetime.datetime.utcnow())
-
     answer_count = Answer.objects(player=player).count()
 
     return jsonify({'status': 'ok', 'answer_count': answer_count})

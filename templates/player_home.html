@@ -66,9 +66,8 @@
 {% endblock %}
 
 {% block js %}
+{{ super() }}
 
-<script src="{{ url_for('static', filename='js/handlebars-1.0.rc.1.js') }}"></script>
-<script src="{{ url_for('static', filename='js/processing-1.4.1.js') }}"></script>
 <script src="{{ url_for('static', filename='js/avatar.js') }}"></script>
 
 <script>
