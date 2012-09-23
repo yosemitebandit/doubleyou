@@ -57,7 +57,6 @@ def player_home(name):
         , answer_count=answer_count)
 
 
-
 def compute(player, requested_date, data):
     ''' compute all parameters..
     '''

@@ -4,12 +4,12 @@
         <link rel='stylesheet' href="{{ url_for('static', filename='css/bootstrap.css') }}">
 
         {% block head %}
+        {% endblock %}
         <style>
             body {
                 background: #444;
             }
         </style>
-        {% endblock %}
     </head>
 
     <body>
@@ -19,8 +19,8 @@
                   <div class="navbar-inner">
                     <a class="brand" href="#">DoubleYou</a>
                     <ul class="nav">
-                      <li class="active"><a href="#">Home</a></li>
-                      <li><a href="#">Profile</a></li>
+                      <li class=><a href="{{ url_for('home') }}">Home</a></li>
+                      <li><a href="{{ url_for('player_home', name='matt') }}">Profile</a></li>
                     </ul>
                   </div>
                 </div>
@@ -33,11 +33,11 @@
     </body>
 
 
-    {% block js %}
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
     <script src="{{ url_for('static', filename='js/handlebars-1.0.rc.1.js') }}"></script>
     <script src="{{ url_for('static', filename='js/processing-1.4.1.js') }}"></script>
     <script src="{{ url_for('static', filename='js/underscore.js') }}"></script>
+    {% block js %}
     {% endblock %}
 
 </html>

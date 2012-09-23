@@ -395,9 +395,12 @@ function sketchProc(processing) {
 
     var updateAvatar = function(data) {
         var activity = data.physical_activity;
-        var mood = data.question_responses;
+        // var mood = data.question_responses;
         var nutrition = data.net_calories;
         var sleep = data.time_slept;
+
+        
+        var mood = Math.round(data.total_score/33);
 
         a2.setParams({
             "mood": mood,
@@ -416,11 +419,14 @@ function sketchProc(processing) {
         a3.render();
         frameCount += 1;
 
-        if (frameCount % 50 === 0) {
+        if (frameCount % 100 === 0) {
 
             var date = (days_ago).days().ago();
-
+            
             var month = date.getMonth();
+            if (month == 0) {
+                month = 1;
+            }
             if (month < 10) {
                 month = '0' + month;
             } else {
@@ -428,6 +434,9 @@ function sketchProc(processing) {
             }
 
             var d = date.getDay();
+            if (d == 0) {
+                d = 1;
+            }
             if (d < 10) {
                 d = '0' + d;
             } else {
