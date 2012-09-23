@@ -399,7 +399,6 @@ function sketchProc(processing) {
         var nutrition = data.net_calories;
         var sleep = data.time_slept;
 
-        
         var mood = Math.round(data.total_score/33);
 
         a2.setParams({
@@ -408,9 +407,11 @@ function sketchProc(processing) {
             "nutrition": nutrition,
             "activity": activity
         });
+
     };
     
     days_ago = 0;
+
 
     processing.draw = function() {
         background(189, 226, 255);
@@ -419,7 +420,7 @@ function sketchProc(processing) {
         a3.render();
         frameCount += 1;
 
-        if (frameCount % 100 === 0) {
+        if (frameCount % 400 === 0) {
 
             var date = (days_ago).days().ago();
             

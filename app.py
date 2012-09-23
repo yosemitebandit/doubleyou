@@ -256,7 +256,7 @@ def player_questions(name):
     '''
 
     questions = Question.objects()
-    index = int(math.floor(random.random()*5))
+    index = int(math.floor(random.random()*len(questions)))
 
     q = questions[index]
 
