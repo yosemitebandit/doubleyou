@@ -13,8 +13,8 @@ var GOOD = 3;
 
 // GENERAL FUNCTIONS
 var polarToCart = function(r, deg) {
-    var dx = r * Math.cos(deg);
-    var dy = r * Math.sin(deg);
+    var dx = r * Math.cos(deg * Math.PI/180);
+    var dy = r * Math.sin(deg * Math.PI/180);
     return [dx, dy];
 };
 
@@ -401,12 +401,15 @@ function sketchProc(processing) {
 
         var mood = Math.round(data.total_score/33);
 
-        a2.setParams({
+        var params = {
             "mood": mood,
             "sleep": sleep,
             "nutrition": nutrition,
             "activity": activity
-        });
+        };
+        console.log(params);
+
+        a2.setParams(params);
 
     };
     
