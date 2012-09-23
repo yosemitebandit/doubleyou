@@ -392,8 +392,18 @@ function sketchProc(processing) {
 
     var frameCount = 0;
 
-    var updateAvatar = function() {
-        console.log("updated");
+    var updateAvatar = function(data) {
+        var activity = data.physical_activity;
+        var mood = data.question_responses;
+        var nutrition = data.net_calories;
+        var sleep = data.time_slept;
+
+        a1.setParams({
+            "mood": mood,
+            "sleep": sleep,
+            "nutrition": nutrition,
+            "activity": activity
+        });
     };
 
     processing.draw = function() {
@@ -402,8 +412,12 @@ function sketchProc(processing) {
         a2.render();
         a3.render();
         frameCount += 1;
-
-        _.delay(updateAvatar, 500);
+        if (frameCount % 500 === 0) {
+            var day = 20120203;
+            var url = "/api/players/matt/" + day;
+            $.getJSON(url, updateAvatar);
+            updateAvatar();
+        }
     };
 }
 
