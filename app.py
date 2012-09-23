@@ -161,8 +161,12 @@ def compute(player, requested_date, data):
 
     ''' question score
     '''
-    question_responses = 4
+    yesterday = requested_date - datetime.timedelta(days=1)
+    question_responses = Answer.objects(player=player
+            , timestamp__gte=yesterday, timestamp__lte=requested_date).count()
 
+    if question_responses > 10:
+        question_responses = 10
 
     return {
         'time_slept': time_slept
